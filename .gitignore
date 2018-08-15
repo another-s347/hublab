@@ -1,0 +1,11 @@
+.idea/
+.vertx/
+project/target/
+project/project/
+target/
+templates/
+webroot/
+TestClient/.vscode/
+TestClient/node_modules/
+TestClient/package-lock.json
+Todo.md

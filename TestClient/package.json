@@ -1,0 +1,16 @@
+{
+  "name": "testclient",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "request": "^2.88.0",
+    "websocket": "^1.0.26",
+    "ws": "^6.0.0"
+  }
+}
