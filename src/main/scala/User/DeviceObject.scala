@@ -29,7 +29,7 @@ class DeviceObject(val deviceConfig: BaseDeviceInfo,user:UserObject) {
                 connection = Some(newConnection)
                 println("set socket on address", newConnection.remoteAddress())
                 true
-            case Some(old) if old.remoteAddress() == newConnection.remoteAddress() =>
+            case Some(old) if old.remoteAddress().host() == newConnection.remoteAddress().host() =>
                 println("replace new socket on address", old.remoteAddress())
                 connection = Some(newConnection)
                 true
