@@ -10,17 +10,19 @@ function login() {
     })
 
     request.post({
-        url: "http://localhost:8080/login",
+        url: "http://localhost:8080/api/login",
         body: loginBody
     }, (error, response, body) => {
-        console.log(error, response, body)
+        //console.log(error, response, body)
         openNotification(body)
     })
 }
 
 function openNotification(sessionId) {
-    var connection = new WebSocket('ws://localhost:8080/notification/register/websocket')
+    var connection = new WebSocket('ws://localhost:8080/api/notification/register/websocket')
+    console.log("connecting")
     connection.onopen = function () {
+        console.log("session",sessionId)
         connection.send(JSON.stringify({"session":sessionId}))
     }
     connection.onerror = function (error) {
@@ -28,7 +30,7 @@ function openNotification(sessionId) {
     };
     // Log messages from the server
     connection.onmessage = function (e) {
-
+        console.log("receive",e.data.toString())
     };
 }
 
@@ -40,4 +42,3 @@ function sleep(n) {
 }
 
 login()
-sleep(10)
