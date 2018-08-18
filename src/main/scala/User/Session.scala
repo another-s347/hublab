@@ -63,7 +63,8 @@ object Session {
         val userObj = onlineUsersLocker.synchronized {
             onlineUsers(username)
         }
-        userObj.registerDevice(loginInfo.deviceName)
+        val deviceTmpId=userObj.registerDevice(loginInfo.deviceName)
+        s"$username|$deviceTmpId"
     }
 
     def RegisterUser(baseUserInfo: BaseUserInfo, loginInfo: LoginInfo): Future[SessionId] = Future {
