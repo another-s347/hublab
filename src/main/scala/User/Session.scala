@@ -6,13 +6,28 @@ import io.vertx.scala.ext.web.handler.sockjs.SockJSSocket
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.mutable
 import scala.concurrent.Future
+import scala.util.Success
 
+//TODO: identity cache
 object Session {
     //Session ID = Username + Device Runtime ID
     type SessionId = String
 
     val onlineUsersLocker = new Object
     val onlineUsers = new mutable.HashMap[String, UserObject]()
+
+    case class Identity(User:UserObject,Device:DeviceObject)
+
+    def GetOnlineIdentity(sessionId: String):Future[Identity]={
+        val s = sessionId.split('|')
+        val deviceId = s(1)
+        val username = s(0)
+        GetOnlineUser(username) flatMap { user=> Future{
+            user.deviceByID(deviceId)
+        } transform {
+            case Success(value)=>Success(Identity(user,value))
+        }}
+    }
 
     def GetOnlineUser(username:String):Future[UserObject]=Future {
         onlineUsersLocker.synchronized {
