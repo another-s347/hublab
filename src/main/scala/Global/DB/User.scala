@@ -27,10 +27,10 @@ object User{
 
     def IsUserExist(username:String):Future[Boolean]={
         go (connection=>{
-            connection.findOneFuture(Config.dbName,Json.emptyObj().put("username",username),Some(Json.emptyObj().put("_id","")))
+            connection.findOneFuture("user",Json.emptyObj().put("Username",username),Some(Json.emptyObj().put("_id","")))
         }) transform {
-            case Success(value)=> ???
-            case Failure(exception) => ???
+            case Success(null)=> Success(false)
+            case Success(_)=> Success(true)
         }
     }
 }

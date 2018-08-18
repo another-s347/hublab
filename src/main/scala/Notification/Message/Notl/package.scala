@@ -59,7 +59,8 @@ package object Notl {
                     throw Exception.MessageConvertException("NotificationMessage:messageUID should be a string")
                 }
             }
-            Try(typ = NotlType(obj.getInteger("type"))) match {
+            typ=Try(NotlType(obj.getInteger("type"))) match {
+                case Success(value)=>value
                 case Failure(_: java.lang.ClassCastException) => {
                     throw Exception.MessageConvertException("NotificationMessage:type should be a int")
                 }
@@ -67,6 +68,7 @@ package object Notl {
                     throw Exception.MessageConvertException(s"NotificationMessage:type should be a int <= $NotlType.maxId")
                 }
             }
+            NotificationMessage(globalMessageUID,message,detail,source,typ)
         }
     }
 

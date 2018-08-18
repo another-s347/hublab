@@ -1,3 +1,6 @@
+import Notification.Message
+import Notification.Message.Destination.{DstType, NotlDestination}
+import Notification.Message.Notl.NotificationMessage
 import User.{BaseDeviceInfo, BaseUserInfo}
 import User.UserManager.Credential
 
@@ -14,7 +17,16 @@ object Main{
                     case Success(value)=>
                         Core.Load() onComplete {
                             case Success(value)=>
-                                print("up")
+                                println("up")
+//                                Thread.sleep(5000)
+//                                Notification.Send("main",
+//                                    Message.Push.PushMessage(NotlDestination("test",Array("node"),DstType.USERDEVICE),NotificationMessage("","test message","test message detail"))
+//                                ) onComplete {
+//                                    case Success(value)=>
+//                                        println("send message"+value)
+//                                    case Failure(exception)=>
+//                                        print(exception)
+//                                }
                             case Failure(exception)=>
                                 print("down")
                         }

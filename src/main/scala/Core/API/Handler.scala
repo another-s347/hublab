@@ -16,7 +16,7 @@ object Handler{
             case Success(loginInfo)=>
                     User.UserManager.Signin(loginInfo) onComplete {
                         case Success(value)=>
-                            routingContext.response().write(s"success:$value").end()
+                            routingContext.response().write(value).end()
                         case Failure(exception)=>
                             routingContext.response().write(s"fail:${exception.getLocalizedMessage}").end()
                     }

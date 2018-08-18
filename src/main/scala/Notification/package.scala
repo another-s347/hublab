@@ -10,7 +10,7 @@ import scala.concurrent.Future
 import scala.util.Success
 
 package object Notification {
-    def Send(source: String, request: Message.Push.PushMessage): Unit = {
+    def Send(source: String, request: Message.Push.PushMessage): Future[String] = {
         request.dst.typ match {
             case Destination.DstType.BROADCAST => ???
             case Destination.DstType.USER => SendToUser(source, request)
