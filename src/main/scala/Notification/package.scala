@@ -95,12 +95,16 @@ package object Notification {
         Global.DB.go(connection => {
             connection.findFuture("file", Json.emptyObj().put("prefix", s"notification-$deviceName").put("user", user))
         }) flatMap { s =>
-            val t = s.toList.map(value => {
+            val t: List[Future[Unit]] = s.toList.map(value => {
                 val message = value.getJsonObject("data")
                 val notlmsg = NotificationMessage().fromJson(message)
                 _SendToUserDevice(user, deviceName, notlmsg) transform {
                     case Success(_) => println(s"resend message ${notlmsg.globalMessageUID} to user:$user device:$deviceName")
                         Success()
+                } flatMap { _=>
+                    Global.DB.go(connection=>{
+                        connection.findOneAndDeleteFuture("file",Json.emptyObj().put("fileName",value.getString("fileName")))
+                    }) transform { case Success(_)=>Success() }
                 }
             })
             Future.sequence(t) transform {
