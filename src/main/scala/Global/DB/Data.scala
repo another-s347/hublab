@@ -1,7 +1,7 @@
 package Global.DB
 
 import _root_.Data._
-import io.vertx.lang.scala.json.Json
+import io.vertx.lang.scala.json.{Json, JsonObject}
 import io.vertx.scala.ext.mongo.UpdateOptions
 
 import scala.collection.script.Update
@@ -17,6 +17,12 @@ object Data{
             case Success(value)=>
                 Success(File(user=username,prefix=prefix,data=value.getJsonObject("data"),fileName=fileName))
         }
+    }
+
+    def GetFileWithQuery(username:String,query:JsonObject):Future[JsonObject]={
+        go (connection=>{
+            connection.findOneFuture("file",query.put("user",username),None)
+        })
     }
 
     def SetFile(file:File):Future[Unit]={
