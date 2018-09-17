@@ -10,6 +10,8 @@ object Router{
         val r=VertxRouter.router(vertx)
         r.route(HttpMethod.POST,"/login").handler(io.vertx.scala.ext.web.handler.BodyHandler.create()).handler(Core.API.Handler.Login)
         r.route("/notification/register/*").handler(SockJSHandler.create(vertx, Core.sockJSOptions).socketHandler(Core.API.Handler.registerNotification))
+        r.route("/external/register/*").handler(SockJSHandler.create(vertx, Core.sockJSOptions).socketHandler(Core.API.Handler.externalRegister))
+        //r.route("/hub/:hubname/*").handler(io.vertx.scala.ext.web.handler.BodyHandler.create()).handler() //TODO: access extern hub
         r
     }
 }

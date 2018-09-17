@@ -39,4 +39,18 @@ object Handler{
             }
         })
     }
+
+    val externalRegister:Handler[SockJSSocket]= (socket:SockJSSocket)=>{
+        socket.handler((data:Buffer)=>{
+            val json=Json.fromObjectString(data.toString)
+            External.Register(json,socket) onComplete {
+                case Success(value)=>
+                    socket.write("external service register success")
+                    socket.handler(value)
+                case Failure(exception)=>
+                    ???
+                    socket.close()
+            }
+        })
+    }
 }
