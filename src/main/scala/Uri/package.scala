@@ -9,7 +9,7 @@ package object Uri {
         val uri=Uri.parse(uriString)
         uri match {
             case UrlWithoutAuthority("hublab",PathParts(hub,action,target),query,_)=>
-                Hub(hub)(action,target,query.paramMap,body,identity)
+                Hub(hub)(hub,action,target,query.paramMap,body,identity)
             case _=>
                 Future.failed(new Exception("uri cannot be parsed using UrlWithoutAuthority"))
         }

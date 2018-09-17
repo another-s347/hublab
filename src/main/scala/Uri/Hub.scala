@@ -8,7 +8,7 @@ import scala.concurrent.Future
 
 object Hub{
     trait HubTrait{
-        def apply(action:String,target:String,query:Map[String,Vector[String]],body:Option[JsonObject],identity:Identity):Future[JsonObject]
+        def apply(hubName:String,action:String,target:String,query:Map[String,Vector[String]],body:Option[JsonObject],identity:Identity):Future[JsonObject]
     }
 
     def apply(hubName:String):HubTrait={
