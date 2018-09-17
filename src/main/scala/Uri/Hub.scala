@@ -16,11 +16,6 @@ object Hub{
     }
 
     val map:Map[String,HubTrait]=Map(
-        "file"->new FileHub
-    ).withDefaultValue(new ErrorHub)
-
-    class ErrorHub extends HubTrait{
-        override def apply(action: String, target: String, query: Map[String, Vector[String]],body:Option[JsonObject],identity:Identity): Future[JsonObject] =
-            Future.successful(Json.emptyObj().put("error","hub do not exist"))
-    }
+        "file"->new FileHub,
+    ).withDefaultValue(new External.ExternalHub)
 }
