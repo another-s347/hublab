@@ -35,13 +35,14 @@ package object Data {
     }
 
     class FileHub extends Uri.Hub.HubTrait{
-        override def apply(hubName:String,action: String, target: String, query: Map[String, Vector[String]], body: Option[JsonObject], identity: Session.Identity): Future[JsonObject] = {
-            val queryInDB=Json.emptyObj()
-            query.view.filter(b=>b._1!="user").filter(b=>b._2.nonEmpty).foreach(b=>{
-                queryInDB.put(b._1,b._2.head)
-            })
+        override def apply(hubName: String, action: String, target: String, query: Map[String, Vector[String]], body: Option[JsonObject], identity: Session.Identity, sessionId: String): Future[JsonObject] = {
             action match {
-                case "get"=>get(queryInDB,target,identity.User.baseUserInfo.name)
+                case "get" =>
+                    val queryInDB = Json.emptyObj()
+                    query.view.filter(b => b._1 != "user").filter(b => b._2.nonEmpty).foreach(b => {
+                        queryInDB.put(b._1, b._2.head)
+                    })
+                    get(queryInDB, target, identity.User.baseUserInfo.name)
                 case "set"=>set(target,body,identity.User.baseUserInfo.name)
                 case unknown=>Future.failed(new Exception(s"unknwon action:$unknown"))
             }
