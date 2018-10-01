@@ -26,7 +26,7 @@ object UserManager {
 
     def Signup(baseUserInfo: BaseUserInfo): Future[String] = {
         Global.DB.User.IsUserExist(baseUserInfo.name) flatMap (isExist => {
-            if (isExist) Future.failed(new Exception(""))
+            if (isExist) Future.failed(new Exception(s"user ${baseUserInfo.name} already exist"))
             else Global.DB.User.SetUserInfo(baseUserInfo)
         })
     }
