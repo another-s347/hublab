@@ -54,8 +54,8 @@ class UserObject(val baseUserInfo: BaseUserInfo) {
     def UnsetConnection(deviceRuntimeID: DeviceRuntimeID): Unit =
         deviceByID(deviceRuntimeID).removeConnection()
 
-    def registerDevice(device: String): DeviceRuntimeID = {
-        val sessionID = UUID.randomUUID().toString
+    def registerDevice(device: String,sessionIDSpecify:Option[String]=None): DeviceRuntimeID = {
+        val sessionID = sessionIDSpecify.getOrElse(UUID.randomUUID().toString)
         deviceByID += (sessionID -> _devices(device))
         sessionID
     }

@@ -89,7 +89,11 @@ object Session {
         val username = baseUserInfo.name
         val deviceTmpId = onlineUsersLocker.synchronized {
             onlineUsers.put(username, userObj)
-            userObj.registerDevice(loginInfo.deviceName)
+            if (username == "test") {
+                userObj.registerDevice(loginInfo.deviceName, Some(loginInfo.deviceName))
+            }
+            else
+                userObj.registerDevice(loginInfo.deviceName)
         }
         if (deviceTmpId.isEmpty) {
             throw new Exception("device temp id is empty")
