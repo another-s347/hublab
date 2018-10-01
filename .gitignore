@@ -1,6 +1,5 @@
 .idea/
 .vertx/
-project/target/
 project/project/
 target/
 templates/
@@ -9,3 +8,4 @@ TestClient/.vscode/
 TestClient/node_modules/
 TestClient/package-lock.json
 Todo.md
+.directory
