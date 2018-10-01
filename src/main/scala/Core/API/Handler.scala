@@ -3,7 +3,8 @@ package Core.API
 import io.vertx.core.Handler
 import io.vertx.core.buffer.Buffer
 import io.vertx.lang.scala.json.Json
-import io.vertx.scala.ext.web.RoutingContext
+import io.vertx.scala.core.MultiMap
+import io.vertx.scala.ext.web.{Cookie, RoutingContext}
 import io.vertx.scala.ext.web.handler.sockjs.SockJSSocket
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -16,6 +17,7 @@ object Handler{
             case Success(loginInfo)=>
                     User.UserManager.Signin(loginInfo) onComplete {
                         case Success(value)=>
+                            routingContext.addCookie(Cookie.cookie("session", value))
                             routingContext.response().write(value).end()
                         case Failure(exception)=>
                             routingContext.response().write(s"fail:${exception.getLocalizedMessage}").end()
