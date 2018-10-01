@@ -42,14 +42,21 @@ object Handler{
 
     val externalRegister:Handler[SockJSSocket]= (socket:SockJSSocket)=>{
         socket.handler((data:Buffer)=>{
-            val json=Json.fromObjectString(data.toString)
-            External.Register(json,socket) onComplete {
-                case Success(value)=>
-                    socket.write("external service register success")
-                    socket.handler(value)
-                case Failure(exception)=>
-                    ???
-                    socket.close()
+            data.getBytes.as[Message.RegisterMessage] match {
+                case Left(_) =>
+                    val response = ExternalMessage(0, Some("error"), None, Some(ByteString.copyFromUtf8("bad message")), "")
+                    socket.write(Buffer.buffer(response.asProtobufBytes))
+                case Right(msg) =>
+                    External.Register(msg, socket) onComplete {
+                        case Success(value) =>
+                            val response = ExternalMessage(0, Some("register"), None, Some(ByteString.copyFromUtf8("external service register success")), "")
+                            socket.write(Buffer.buffer(response.asProtobufBytes))
+                            socket.handler(value)
+                        case Failure(exception) =>
+                            ???
+                            println(exception.getLocalizedMessage)
+                            socket.close()
+                    }
             }
         })
     }
