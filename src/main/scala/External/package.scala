@@ -55,7 +55,7 @@ package object External {
                 Future.successful(Json.emptyObj().put("error",s"hub $hubName do not exist"))
             }
             else
-                externHubs(hubName).RedirectUriRequest(action,target,query,body,identity)
+                externHubs(hubName).RedirectUriRequest(hubName, action, target, query, body, sessionId)
         }
     }
 
