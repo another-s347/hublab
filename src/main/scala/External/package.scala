@@ -5,24 +5,32 @@ import User.Session
 import com.google.protobuf.ByteString
 import io.vertx.core.Handler
 import io.vertx.core.buffer.Buffer
-import io.vertx.lang.scala.json.{Json, JsonObject}
+import io.vertx.lang.scala.json.{Json, JsonArray, JsonObject}
 import io.vertx.scala.ext.web.handler.sockjs.SockJSSocket
 import io.protoless.generic.auto._
 import io.protoless.syntax._
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{Future, Promise}
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 package object External {
-    val externHubs=new mutable.HashMap[String,Externals]()
+    val externHubs = new mutable.HashMap[String, Externals]()
 
-    class Externals(name:String,val socket:SockJSSocket){
-        var index=1
-        val promiseMap=new mutable.HashMap[Int,Promise[JsonObject]]()
+    class Externals(name: String, val socket: SockJSSocket) {
+        var index = 1
+        val promiseMap = new mutable.HashMap[Int, Promise[JsonObject]]()
 
-        def CompletePromise(i:Int,result:JsonObject):Unit={
-            promiseMap.remove(i).foreach(p=>{
+        def FailPromise(i: Int, message: String): Unit = {
+            promiseMap.remove(i).foreach(p => {
+                p.failure(new Exception(message))
+            })
+        }
+
+        def CompletePromise(i: Int, result: JsonObject): Unit = {
+            promiseMap.remove(i).foreach(p => {
                 p.success(result)
             })
         }
@@ -38,21 +46,43 @@ package object External {
         }
     }
 
-    def Register(request:JsonObject,socket:SockJSSocket):Future[Handler[io.vertx.core.buffer.Buffer]]={
-        val name=request.getString("name")
-        if(externHubs.contains(name))
+    def QueryToJson(query: Map[String, Vector[String]]): JsonObject = {
+        val j = Json.emptyObj()
+        query.foreach(i => {
+            val key = i._1
+            val vec = i._2
+            val jsonArr = Json.emptyArr()
+            vec.foreach(item => {
+                jsonArr.add(item)
+            })
+            j.put(key, jsonArr)
+        })
+        j
+    }
+
+    def JsonToQuery(j: JsonObject): Map[String, Vector[String]] = {
+        val buf = new mutable.HashMap[String, Vector[String]]()
+        j.fieldNames().asScala.foreach(key => {
+            buf += (key -> j.getJsonArray(key).getList.asScala.map(_.toString).toVector)
+        })
+        buf.toMap
+    }
+
+    def Register(request: RegisterMessage, socket: SockJSSocket): Future[Handler[io.vertx.core.buffer.Buffer]] = {
+        val name = request.name
+        if (externHubs.contains(name))
             Future.failed(new Exception(s"external service [$name] exist"))
-        else{
-            val e=new Externals(name,socket)
-            externHubs+=(name->e)
+        else {
+            val e = new Externals(name, socket)
+            externHubs += (name -> e)
             Future.successful(ExternalSocketHandlerCreator(e))
         }
     }
 
-    class ExternalHub extends Uri.Hub.HubTrait{
-        override def apply(hubName:String,action: String, target: String, query: Map[String, Vector[String]], body: Option[JsonObject], identity: Session.Identity): Future[JsonObject] = {
-            if(!externHubs.contains(hubName)){
-                Future.successful(Json.emptyObj().put("error",s"hub $hubName do not exist"))
+    class ExternalHub extends Uri.Hub.HubTrait {
+        override def apply(hubName: String, action: String, target: String, query: Map[String, Vector[String]], body: Option[JsonObject], identity: Session.Identity, sessionId: String): Future[JsonObject] = {
+            if (!externHubs.contains(hubName)) {
+                Future.successful(Json.emptyObj().put("error", s"hub $hubName do not exist"))
             }
             else
                 externHubs(hubName).RedirectUriRequest(hubName, action, target, query, body, sessionId)
