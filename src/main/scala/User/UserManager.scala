@@ -12,9 +12,8 @@ object UserManager {
     }
 
     def Signin(loginInfo: LoginInfo): Future[Session.SessionId] = {
-        //TODO Verify user
         Global.DB.User.GetUserInfo(loginInfo.username) flatMap ((userInfo: BaseUserInfo) => Future {
-            if (userInfo.credential.password != loginInfo.credential.password)
+            if (userInfo.credential.password != loginInfo.credential.password) //TODO: enhance verify method
                 throw new Exception("password not correct")
             userInfo
         }) flatMap (userInfo => {
