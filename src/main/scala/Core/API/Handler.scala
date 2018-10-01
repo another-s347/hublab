@@ -1,11 +1,16 @@
 package Core.API
 
+import External.Message
+import External.Message.ExternalMessage
+import com.google.protobuf.ByteString
 import io.vertx.core.Handler
 import io.vertx.core.buffer.Buffer
 import io.vertx.lang.scala.json.Json
 import io.vertx.scala.core.MultiMap
 import io.vertx.scala.ext.web.{Cookie, RoutingContext}
 import io.vertx.scala.ext.web.handler.sockjs.SockJSSocket
+import io.protoless.syntax._
+import io.protoless.generic.auto._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success, Try}
@@ -61,5 +66,37 @@ object Handler{
                     }
             }
         })
+    }
+
+    val externalAccess: Handler[RoutingContext] = (routingContext: RoutingContext) => {
+        routingContext.response().setChunked(true)
+        Helper.TryGetSessionID(routingContext) match {
+            case Some(sessionId) =>
+                val hubname = routingContext.pathParam("hubname").get
+                val action = routingContext.pathParam("action").get
+                val target = routingContext.pathParam("target").get
+                val query: MultiMap = routingContext.queryParams()
+                val f = Uri.apply(hubname, action, target, query, routingContext.getBodyAsJson(), sessionId)
+                f onComplete {
+                    case Success(value) =>
+                        println(value.toString)
+                        routingContext.response().end(value.toBuffer)
+                    case Failure(exception) =>
+                        routingContext.response().end(Json.emptyObj().put("error", exception.getMessage).toBuffer)
+                }
+            case None =>
+                ???
+        }
+        //        Try(User.UserManager.JsonToLoginInfo(routingContext.getBodyAsJson().get)) match {
+        //            case Success(loginInfo)=>
+        //                User.UserManager.Signin(loginInfo) onComplete {
+        //                    case Success(value)=>
+        //                        routingContext.response().write(value).end()
+        //                    case Failure(exception)=>
+        //                        routingContext.response().write(s"fail:${exception.getLocalizedMessage}").end()
+        //                }
+        //            case Failure(exception)=>
+        //                routingContext.response().write(s"fail:${exception.getLocalizedMessage}").end()
+        //        }
     }
 }
