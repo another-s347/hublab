@@ -53,6 +53,7 @@ package object Data {
             Global.DB.Data.SetFile(File.fromJson(body.get,user)) transform {
                 case Success(value)=>
                     Success(Json.emptyObj().put("result","success"))
+                case scala.util.Failure(exception) => Failure(exception)
             }
         }
 
@@ -63,6 +64,7 @@ package object Data {
                         case Success(value)=>
                             value.putNull("data")
                             Success(value)
+                        case scala.util.Failure(exception) => Failure(exception)
                     }
                 case "all"=>
                     Global.DB.Data.GetFileWithQuery(user,query)
@@ -70,6 +72,7 @@ package object Data {
                     Global.DB.Data.GetFileWithQuery(user,query) transform {
                         case Success(value)=>
                             Success(Json.emptyObj().put("data",value.getJsonObject("data")))
+                        case scala.util.Failure(exception) => Failure(exception)
                     }
             }
         }

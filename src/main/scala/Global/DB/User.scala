@@ -14,6 +14,7 @@ object User{
             connection.findOneFuture("user",Json.emptyObj().put("Username",username),None)
         }) transform {
             case Success(value)=> Try(BaseUserInfo.fromJson(value))
+            case scala.util.Failure(exception) => Failure(exception)
         }
     }
 
@@ -22,6 +23,7 @@ object User{
             connection.replaceWithOptionsFuture("user",Json.emptyObj().put("username",baseUserInfo.name),baseUserInfo.toJson,UpdateOptions().setUpsert(true))
         }) transform {
             case Success(value)=>Success(baseUserInfo.name)
+            case scala.util.Failure(exception) => Failure(exception)
         }
     }
 
@@ -31,6 +33,7 @@ object User{
         }) transform {
             case Success(null)=> Success(false)
             case Success(_)=> Success(true)
+            case scala.util.Failure(exception) => Failure(exception)
         }
     }
 }

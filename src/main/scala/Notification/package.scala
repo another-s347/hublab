@@ -7,7 +7,7 @@ import io.vertx.lang.scala.json.Json
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import scala.util.Success
+import scala.util.{Failure, Success}
 
 package object Notification {
     def Send(source: String, request: Message.Push.PushMessage): Future[String] = {
@@ -59,6 +59,7 @@ package object Notification {
                                     val file = File(fileName = messageFilename, prefix = s"notification-$deviceName", data = message.toJson(), user = username)
                                     Global.DB.Data.SetFile(file) transform {
                                         case Success(_) => Success(messageID)
+                                        case scala.util.Failure(exception) => Failure(exception)
                                     }
                             }
                         }
@@ -70,6 +71,7 @@ package object Notification {
                         val file = File(fileName = messageFilename, prefix = s"notification-$deviceName", data = message.toJson(), user = username)
                         Global.DB.Data.SetFile(file) transform {
                             case Success(_) => Success(messageID)
+                            case scala.util.Failure(exception) => Failure(exception)
                         }
                     }
                 }
@@ -101,14 +103,16 @@ package object Notification {
                 _SendToUserDevice(user, deviceName, notlmsg) transform {
                     case Success(_) => println(s"resend message ${notlmsg.globalMessageUID} to user:$user device:$deviceName")
                         Success()
+                    case scala.util.Failure(exception) => Failure(exception)
                 } flatMap { _=>
                     Global.DB.go(connection=>{
                         connection.findOneAndDeleteFuture("file",Json.emptyObj().put("fileName",value.getString("fileName")))
-                    }) transform { case Success(_)=>Success() }
+                    }) transform { case Success(_) => Success() case scala.util.Failure(exception) => Failure(exception) }
                 }
             })
             Future.sequence(t) transform {
                 case Success(_) => Success()
+                case scala.util.Failure(exception) => Failure(exception)
             }
         }
     }

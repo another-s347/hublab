@@ -16,6 +16,7 @@ object Data{
         }) transform {
             case Success(value)=>
                 Success(File(user=username,prefix=prefix,data=value.getJsonObject("data"),fileName=fileName))
+            case scala.util.Failure(exception) => Failure(exception)
         }
     }
 

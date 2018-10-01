@@ -6,7 +6,7 @@ import io.vertx.scala.ext.web.handler.sockjs.SockJSSocket
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.collection.mutable
 import scala.concurrent.Future
-import scala.util.Success
+import scala.util.{Failure, Success}
 
 //TODO: identity cache
 object Session {
@@ -26,6 +26,8 @@ object Session {
             user.deviceByID(deviceId)
         } transform {
             case Success(value)=>Success(Identity(user,value))
+            case Failure(exception)=>
+                Failure(exception)
         }}
     }
 
